@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" href="stylesheets/inputfile.css">
+    <style>
+        .show-data {
+            text-align: center;
+        }
+
+        .add-btn {
+            width: 40%;
+        }
+
+        .showname,
+        .showtel,
+        .showaddr {
+            display: none;
+        }
+
+        .dropdown-menu {
+            display: block;
+            width: 100%;
+            height: 75px;
+        }
+    </style>
+</head>
+
+<body>
+    <table class="table table-condensed show-data">
+        <THead>
+            <tr class="success">
+                <td colspan="4">
+                    <span>name:</span>
+                    <input class="search-name" type="text" value="">
+                </td>
+                <td>
+                    <button class="btn-primary search">search</button>
+                </td>
+            </tr>
+            <tr class="success">
+                <td colspan="5">
+                    show data
+                </td>
+            </tr>
+        </THead>
+        <tbody>
+            <tr class="active">
+                <td>
+                    num
+                </td>
+                <td>
+                    name
+                </td>
+                <td>
+                    tel
+                </td>
+                <td>
+                    address
+                </td>
+                <td>
+                    + / -
+                </td>
+            </tr>
+        </tbody>
+
+
+    </table>
+
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            <li><a href="#">1</a></li>
+            <li><a href="#">2</a></li>
+            <li><a href="#">3</a></li>
+            <li><a href="#">4</a></li>
+            <li><a href="#">5</a></li>
+        </ul>
+    </nav>
+    <form enctype="multipart/form-data" id="files">
+        <input type="file" name="myfile" id="test">
+    </form>
+    <script src="./jquery-3.2.1.js"></script>
+    <script src="bootstrap/fileinput.js"></script>
+    <script src="bootstrap/zh.js"></script>
+    <script src="bootstrap/bootstrap.min.js"></script>
+    <script>
+        (function () {
+            $.ajax({
+                url: 'http://127.0.0.1:3000/ajax',
+                type: 'POST',
+                dataType: "json",
+                success: function (data) {
+                    console.log(data)
+                    var strs = '';
+                    for (var i in data) {
+
+                        if (data[i].name) {
+                            strs += '<tr class="warning">' +
+                                '<td>' + i + '</td>' +
+                                '<td>' + data[i].name + '</td>' +
+                                '<td>' + data[i].tel + '</td>' +
+                                '<td>' + data[i].addr + '</td>' +
+                                '<td>' +
+
+                                '<button class="btn-primary reduce-data" userId="' + data[i]._id + '">-</button>' +
+                                ' ' +
+                                '<button class="btn-primary change-data" userId="' + data[i]._id + '">change</button>' +
+                                ' ' +
+                                '<button class="btn-primary up-data" userId="' + data[i]._id + '">updata</button>' +
+                                '</td>' +
+                                '</tr>'
+                        }
+                    }
+                    var add = '<tr class="positive">' +
+                        '<td colspan="5">' +
+                        '<button class="btn-primary add-btn">+</button>' +
+                        '</td>' +
+
+                        '</tr>' +
+                        '<tr class="positive">' +
+                        '<td colspan="5">' +
+                        '<button class="btn-primary">-</button>' +
+                        '</td>' +
+
+                        '</tr>'
+
+                    $('tbody').append(strs);
+                    $('tbody').append(add);
+                }
+            })
+            function addData(a, b, c) {
+                var objs = {
+                    name: a,
+                    tel: b,
+                    addr: c
+                }
+                $.ajax({
+                    url: 'http://127.0.0.1:3000/add',
+                    type: 'get',
+                    data: objs,
+                    success: function (data) {
+                        console.log(data)
+
+                    }
+                })
+                window.location.href = 'http://localhost:8080/frond/showData.html';
+            }
+            $('.table').on('click', '.add-btn', function () {
+                var addLine = '<tr class="warning">' +
+                    '<td>' + $('.warning').length + '</td>' +
+                    '<td>' +
+                    '<input type="text" value="" class="name"><span class="showname"></span>' +
+                    '</td>' +
+                    '<td>' +
+                    '<input type="text" value="" class="tel"><span class="showtel"></span>' +
+                    '</td>' +
+                    '<td>' +
+                    '<input type="text" value="" class="addr"><span class="showaddr"></span>' +
+                    '</td>' +
+                    '<td>' +
+                    '<button class="btn-primary send-mess">+</button>' +
+
+                    '</td>' +
+                    '</tr>'
+                $(this).parent().parent().before(addLine);
+            })
+            $('.table').on('click', '.send-mess', function () {
+                var name = $('.name').val();
+                var tel = $('.tel').val();
+                var addr = $('.addr').val();
+                $('.name').hide();
+                $('.tel').hide();
+                $('.addr').hide();
+                $('.showname').text(name);
+                $('.showtel').text(tel);
+                $('.showaddr').text(addr);
+                $('.showname,.showtel,.showaddr').show()
+                addData(name, tel, addr);
+
+            })
+
+            $('.table').on('click', '.reduce-data', function () {
+                var json = {
+                    name: $(this).parent().siblings().eq(1).text()
+                }
+                $.ajax({
+                    url: 'http://127.0.0.1:3000/delete',
+                    type: 'get',
+                    data: json,
+                    success: function (data) {
+
+                    }
+                })
+                window.location.href = 'http://localhost:8080/frond/showData.html';
+            })
+            var changdata;
+            $('.table').on('click', '.change-data', function () {
+                changdata = {
+                    name: $(this).parent().siblings().eq(1).text()
+                }
+                $(this).parent().siblings().eq(1).attr('contentEditable', true);
+                $(this).parent().siblings().eq(2).attr('contentEditable', true);
+                $(this).parent().siblings().eq(3).attr('contentEditable', true);
+            })
+
+            $('.table').on('click', '.up-data', function () {
+
+                var updata = {
+                    name: $(this).parent().siblings().eq(1).text(),
+                    tel: $(this).parent().siblings().eq(2).text(),
+                    addr: $(this).parent().siblings().eq(3).text()
+                }
+                $.ajax({
+                    url: 'http://127.0.0.1:3000/change',
+                    type: 'get',
+                    data: { changdata: changdata, updata: updata },
+                    success: function (data) {
+
+                    }
+                })
+                window.location.href = 'http://localhost:8080/frond/showData.html';
+            });
+
+            //查找
+            $('.search').click(function () {
+                var name = {
+                    name: $('.search-name').val()
+                }
+                $.ajax({
+                    url: 'http://127.0.0.1:3000/search',
+                    type: 'get',
+                    data: name,
+                    success: function (data) {
+                        var strs = '';
+                        for (var i in data) {
+
+                            if (data[i].name) {
+                                strs += '<tr class="warning">' +
+                                    '<td>' + i + '</td>' +
+                                    '<td>' + data[i].name + '</td>' +
+                                    '<td>' + data[i].tel + '</td>' +
+                                    '<td>' + data[i].addr + '</td>' +
+                                    '<td>' +
+
+                                    '<button class="btn-primary reduce-data" userId="' + data[i]._id + '">-</button>' +
+                                    ' ' +
+                                    '<button class="btn-primary change-data" userId="' + data[i]._id + '">change</button>' +
+                                    ' ' +
+                                    '<button class="btn-primary up-data" userId="' + data[i]._id + '">updata</button>' +
+                                    '</td>' +
+                                    '</tr>'
+                            }
+                        }
+                        $('tbody').html(strs);
+                    }
+                })
+            })
+
+            //上传文件
+
+            $('#test').on('change', function (e) {
+                var file = e.target.files[0];
+                var formdata = new FormData();
+                formdata.append('files', file)
+                // console.log(formdata)
+                $.ajax({
+                    url: 'http://127.0.0.1:3000/fileUpload',
+                    type: 'post',
+                    datatype: 'json',
+                    data: formdata,
+                    cache: false,
+                    traditional: true,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        console.log(data)
+                    },
+                    error: function () { }
+                });
+
+            })
+            //分页查找    
+            $('.pagination li').click(function () {
+                var indexPage = $(this).index() + 1;
+                var row = 2;
+                var datas = {
+                    page: indexPage,
+                    rows: 2
+                }
+                $.ajax({
+                    url: 'http://127.0.0.1:3000/index/pagelist',
+                    type: 'post',
+                    data: datas,
+                    success: function (data) {
+                        // console.log(data)
+                        var strs = '';
+                        for (var i in data) {
+
+                            if (data[i].name) {
+                                strs += '<tr class="warning">' +
+                                    '<td>' + i + '</td>' +
+                                    '<td>' + data[i].name + '</td>' +
+                                    '<td>' + data[i].tel + '</td>' +
+                                    '<td>' + data[i].addr + '</td>' +
+                                    '<td>' +
+
+                                    '<button class="btn-primary reduce-data" userId="' + data[i]._id + '">-</button>' +
+                                    ' ' +
+                                    '<button class="btn-primary change-data" userId="' + data[i]._id + '">change</button>' +
+                                    ' ' +
+                                    '<button class="btn-primary up-data" userId="' + data[i]._id + '">updata</button>' +
+                                    '</td>' +
+                                    '</tr>'
+                            }
+                        }
+                        $('tbody').html(strs);
+                    }
+
+                })
+            })
+        })();
+    </script>
+</body>
+
+</html>

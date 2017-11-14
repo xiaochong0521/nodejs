@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="stylesheets/bootstrap.min.css">
+
+</head>
+<body>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            用户登录
+        </div>
+        <div class="panel-body">
+                Some default panel content here. Nulla vitae elit libero, a pharetra augue. Aenean lacinia bibendum nulla sed consectetur. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Nullam id dolor id nibh ultricies vehicula ut id elit.
+        </div>
+        <table class="table">
+            <tr>
+                <td>用户id：</td>
+                <td>
+                    <input type="text" class="userId" value="">
+                </td>
+            </tr>
+            <tr>
+                <td>密码：</td>
+                <td>
+                    <input type="password" class="passwd" value="">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <span class="btn btn-primary ">Primary</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <script src="./jquery-3.2.1.js"></script>
+    <script src="bootstrap/bootstrap.min.js"></script>
+    
+    <script>
+          $.ajax({
+              url: 'http://127.0.0.1:3000/ajax',
+              type: 'post',
+              dataType: "json",
+              //headers: 
+              //data: {name: 'admin', password: '123456'},
+              success:function(data){
+                console.log(data);
+                $('.btn').click(function(){
+                    var userId = $('.userId').val();
+                    var passwd = $('.passwd').val();
+                    var realName = data[0].name;
+                    var realpw = data[0].password;
+                    if(userId == realName && passwd == realpw){
+                       window.location.href = "showData.html";
+                    }
+                });
+              }
+          })  
+    </script>  
+</body>
+</html>
